@@ -3,172 +3,181 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>539 / 天天樂 雙組過關智能立柱系統</title>
+    <title>539 / 天天樂 智能立柱系統 (含自選不出)</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f4f6f9; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }
         h1 { text-align: center; color: #2c3e50; }
         .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .mode-select { display: flex; gap: 15px; margin-bottom: 15px; }
-        .mode-btn { flex: 1; padding: 12px; font-size: 16px; border: 2px solid #ccc; border-radius: 5px; cursor: pointer; font-weight: bold; background: #fff; transition: 0.2s; }
-        .mode-btn.active-539 { background-color: #27ae60; color: white; border-color: #27ae60; }
-        .mode-btn.active-ttw { background-color: #2980b9; color: white; border-color: #2980b9; }
-        textarea { width: 100%; height: 120px; box-sizing: border-box; border: 2px dashed #bdc3c7; border-radius: 5px; padding: 10px; font-family: monospace; font-size: 16px; background: #fafafa; }
-        button.gen-btn { width: 100%; padding: 14px; font-size: 16px; background-color: #e67e22; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 15px; }
+        .mode-select { display: flex; gap: 10px; margin-bottom: 15px; }
+        .mode-btn { flex: 1; padding: 12px; font-size: 15px; border: 2px solid #ccc; border-radius: 5px; cursor: pointer; font-weight: bold; background: #fff; transition: 0.2s; }
+        .mode-btn.active-game { background-color: #2980b9; color: white; border-color: #2980b9; }
+        .mode-btn.active-play { background-color: #e74c3c; color: white; border-color: #e74c3c; }
+        textarea { width: 100%; height: 100px; box-sizing: border-box; border: 2px dashed #bdc3c7; border-radius: 5px; padding: 10px; font-size: 16px; background: #fafafa; }
+        .kill-input { width: 100%; padding: 12px; box-sizing: border-box; border: 2px solid #e74c3c; border-radius: 5px; font-size: 16px; font-weight: bold; color: #c0392b; background: #fdf2f2; margin-top: 5px; }
+        button.gen-btn { width: 100%; padding: 14px; font-size: 16px; background-color: #e67e22; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 20px; }
         button.gen-btn:hover { background-color: #d35400; }
         .result-box { background: #eef7f2; border-left: 5px solid #27ae60; padding: 15px; margin-top: 15px; position: relative; border-radius: 0 5px 5px 0; }
         .code-output { font-family: monospace; font-size: 16px; background: #2c3e50; color: #2ecc71; padding: 12px; border-radius: 5px; overflow-x: auto; word-break: break-all; margin: 10px 0; font-weight: bold; letter-spacing: 1px; }
-        .copy-btn { background: #7f8c8d; color: white; padding: 6px 12px; font-size: 12px; border-radius: 3px; position: absolute; right: 10px; top: 10px; width: auto; cursor: pointer; }
+        .copy-btn { background: #7f8c8d; color: white; padding: 6px 12px; font-size: 12px; border-radius: 3px; position: absolute; right: 10px; top: 10px; cursor: pointer; }
         .analysis-box { background: #fdfaf2; border-left: 5px solid #f1c40f; padding: 15px; margin-top: 10px; font-size: 14px; line-height: 1.6; border-radius: 0 5px 5px 0; }
         .personality-tag { display: inline-block; padding: 3px 8px; border-radius: 3px; font-size: 12px; font-weight: bold; color: white; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
-    <h1>📊 39碼全包 雙組過關智能立柱系統 (10-14-15)</h1>
+    <h1>📊 39碼全包 雙功能智能立柱系統 (自選不出牌升級版)</h1>
     
     <div class="card">
-        <h3>1. 請選擇您今天要投注的彩種：</h3>
+        <h3>1. 請選擇彩種模式：</h3>
         <div class="mode-select">
-            <button id="m-539" class="mode-btn active-539" onclick="setMode('539')">今彩 539 模式 (主攻冷熱平衡)</button>
-            <button id="m-ttw" class="mode-btn" onclick="setMode('ttw')">加州天天樂 模式 (主攻連莊大號)</button>
+            <button id="g-539" class="mode-btn active-game" onclick="setGame('539')">今彩 539 模式</button>
+            <button id="g-ttw" class="mode-btn" onclick="setGame('ttw')">加州天天樂 模式</button>
         </div>
 
-        <h3>2. 請貼上歷史開獎號碼 (最新一期放最上面第一行)：</h3>
+        <h3>2. 請選擇立柱玩法：</h3>
+        <div class="mode-select">
+            <button id="p-3star" class="mode-btn active-play" onclick="setPlay('3star')">三星過關 (10 - 14 - 15 立三柱)</button>
+            <button id="p-4star" class="mode-btn" onclick="setPlay('4star')">四星過關 (9 - 10 - 10 - 10 立四柱)</button>
+        </div>
+
+        <div id="kill-section" style="margin-bottom: 20px;">
+            <h3 style="color:#c0392b;">🚫 填入自選不出牌 (刪除號)：</h3>
+            <p style="font-size:13px; color:#7f8c8d; margin-top:-10px;">(若無則保持空白，支援空白或逗號隔開。例：04 18 35)</p>
+            <input type="text" id="kill-input" class="kill-input" placeholder="請輸入今晚想刪除的冷碼或冥燈號...">
+        </div>
+
+        <h3>3. 請貼上歷史開獎號碼 (最新一期放第一行)：</h3>
         <textarea id="history-input" placeholder="直接貼上號碼即可，支援空白或逗號區隔..."></textarea>
         
-        <button class="gen-btn" onclick="processData()">⚡ 生成兩組「雙保險交叉掩護」過關立柱</button>
+        <button class="gen-btn" onclick="processData()">⚡ 生成兩組「自動排除不出牌」黃金立柱</button>
     </div>
 
     <div class="card" id="result-section" style="display:none;">
-        <h3>🔮 雙保險立柱生成結果 (10支 + 14支 + 15支)</h3>
+        <h3>🔮 智慧分柱生成結果</h3>
         <div id="personality-desc" style="margin-bottom: 15px;"></div>
         
         <!-- 第一組 -->
         <div class="result-box">
-            <h4>第一組：常態熱盤強攻型 (專抓熱門碼與近期慣性)</h4>
+            <h4>第一組：常態主攻型 (鎖定當前盤口強勢軌跡)</h4>
             <div class="code-output" id="out-1"></div>
             <button class="copy-btn" onclick="copyText('out-1')">複製</button>
         </div>
         <div class="analysis-box">
-            <strong>📋 第一組 第 1 柱 (10支) 戰術定位：</strong>
+            <strong>📋 第一組 第 1 柱 戰術定位：</strong>
             <div id="analysis-text-1" style="margin-top:8px;"></div>
         </div>
 
         <!-- 第二組 -->
         <div class="result-box" style="border-left-color: #9b59b6; margin-top:30px;">
-            <h4>第二組：逆向防守變盤型 (專防冷熱交替與偏門盤)</h4>
+            <h4>第二組：戰術防守型 (專防冷熱大交替變盤)</h4>
             <div class="code-output" id="out-2"></div>
             <button class="copy-btn" onclick="copyText('out-2')">複製</button>
         </div>
         <div class="analysis-box" style="border-left-color: #9b59b6;">
-            <strong>📋 第二組 第 1 柱 (10支) 戰術定位：</strong>
+            <strong>📋 第二組 第 1 柱 戰術定位：</strong>
             <div id="analysis-text-2" style="margin-top:8px;"></div>
         </div>
     </div>
 
     <script>
-        let currentMode = '539';
+        let currentGame = '539';
+        let currentPlay = '3star';
 
-        function setMode(mode) {
-            currentMode = mode;
-            const btn539 = document.getElementById('m-539');
-            const btnTtw = document.getElementById('m-ttw');
-            if(mode === '539') {
-                btn539.className = "mode-btn active-539";
-                btnTtw.className = "mode-btn";
-            } else {
-                btn539.className = "mode-btn";
-                btnTtw.className = "mode-btn active-ttw";
-            }
+        function setGame(game) {
+            currentGame = game;
+            document.getElementById('g-539').className = game === '539' ? "mode-btn active-game" : "mode-btn";
+            document.getElementById('g-ttw').className = game === 'ttw' ? "mode-btn active-game" : "mode-btn";
+        }
+
+        function setPlay(play) {
+            currentPlay = play;
+            document.getElementById('p-3star').className = play === '3star' ? "mode-btn active-play" : "mode-btn";
+            document.getElementById('p-4star').className = play === '4star' ? "mode-btn active-play" : "mode-btn";
         }
 
         function processData() {
             const text = document.getElementById('history-input').value.trim();
             const matches = text.match(/\d+/g);
-            
-            if (!matches || matches.length < 5) {
-                alert("請輸入有效的開獎歷史號碼！");
-                return;
-            }
+            if (!matches || matches.length < 5) { alert("請輸入有效的開獎歷史號碼！"); return; }
+
+            // 讀取刪除號
+            const killText = document.getElementById('kill-input').value.trim();
+            const killMatches = killText.match(/\d+/g) || [];
+            let killList = killMatches.map(x => parseInt(x, 10));
 
             let numCounts = Array(40).fill(0);
             let lastPeriodNums = [];
-            
-            for(let i=0; i<Math.min(5, matches.length); i++) {
-                lastPeriodNums.push(parseInt(matches[i], 10));
-            }
+            for(let i=0; i<Math.min(5, matches.length); i++) { lastPeriodNums.push(parseInt(matches[i], 10)); }
+            matches.forEach(m => { let val = parseInt(m, 10); if (val >= 1 && val <= 39) numCounts[val]++; });
 
-            matches.forEach(m => {
-                let val = parseInt(m, 10);
-                if (val >= 1 && val <= 39) numCounts[val]++;
-            });
-
-            let scores1 = Array(40).fill(0);
-            let scores2 = Array(40).fill(0);
-
+            let scores1 = Array(40).fill(0), scores2 = Array(40).fill(0);
             for(let i=1; i<=39; i++) {
                 let baseCount = numCounts[i];
-                
                 scores1[i] = baseCount * 10;
-                if (currentMode === 'ttw') {
+                if (currentGame === 'ttw') {
                     if (lastPeriodNums.includes(i)) scores1[i] += 25;
                     if (i >= 20) scores1[i] += 8;
                 } else {
                     if (lastPeriodNums.includes(i)) scores1[i] -= 15;
                 }
 
-                scores2[i] = (30 - baseCount) * 10; 
-                if (currentMode === 'ttw') {
-                    if (i >= 15 && i <= 30) scores2[i] += 15;
+                if (currentPlay === '4star') {
+                    scores2[i] = (25 - baseCount) * 10 + (i % 10); 
                 } else {
-                    if (!lastPeriodNums.includes(i) && baseCount === 0) scores2[i] += 30;
+                    scores2[i] = (30 - baseCount) * 10;
+                    if (currentGame === 'ttw' && i >= 15 && i <= 30) scores2[i] += 15;
+                    if (currentGame === '539' && !lastPeriodNums.includes(i) && baseCount === 0) scores2[i] += 30;
                 }
             }
 
-            let arr1 = [];
-            for(let i=1; i<=39; i++) { arr1.push({num: i, score: scores1[i]}); }
-            arr1.sort((a,b) => b.score - a.score);
-            let order1 = arr1.map(x => x.num);
-
-            let arr2 = [];
-            for(let i=1; i<=39; i++) { arr2.push({num: i, score: scores2[i]}); }
+            // 建立排除後的排序清單
+            let arr1 = [], arr2 = [];
+            for(let i=1; i<=39; i++) {
+                // 如果是排除號，直接給極低分，逼退到最後面
+                let s1 = killList.includes(i) ? -9999 : scores1[i];
+                let s2 = killList.includes(i) ? -9999 : scores2[i];
+                arr1.push({num: i, score: s1}); 
+                arr2.push({num: i, score: s2}); 
+            }
+            arr1.sort((a,b) => b.score - a.score); 
             arr2.sort((a,b) => b.score - a.score);
-            let order2 = arr2.map(x => x.num);
+            
+            // 抓出未被排除的號碼清單
+            let filteredOrder1 = arr1.map(x => x.num).filter(n => !killList.includes(n));
+            let filteredOrder2 = arr2.map(x => x.num).filter(n => !killList.includes(n));
+
+            // 自動遞補機制：如果號碼不夠填滿柱子，就用最強的熱碼重複使用(複式加強防守)
+            const getFillArray = (order, targetSize) => {
+                let res = [];
+                for(let i=0; i<targetSize; i++) {
+                    // 如果剩餘球數不夠，就從頭循環使用未被排除的最強熱碼
+                    res.push(order[i % order.length]);
+                }
+                return res;
+            };
 
             const fmt = (n) => String(n).padStart(2, '0');
-            const toStr = (arr) => arr.sort((a,b)=>a-b).map(fmt).join(',');
+            const toStr = (arr) => {
+                // 為了防止代碼端重複顯示同號，輸出前做一個去重處理(單純防呆)
+                let unique = [...new Set(arr)];
+                return unique.sort((a,b)=>a-b).map(fmt).join(',');
+            };
 
-            let c1_p1 = order1.slice(0, 10);
-            let c1_p2 = order1.slice(10, 24);
-            let c1_p3 = order1.slice(24, 39);
-            document.getElementById('out-1').innerText = toStr(c1_p1) + "+" + toStr(c1_p2) + "+" + toStr(c1_p3);
+            let gameTitle = currentGame === '539' ? '今彩 539' : '加州天天樂';
+            let playTitle = currentPlay === '3star' ? '三星過關 (10-14-15)' : '四星過關 (9-10-10-10)';
+            let colorTag = currentGame === '539' ? '#27ae60' : '#2980b9';
 
-            let c2_p1 = order2.slice(0, 10);
-            let c2_p2 = order2.slice(10, 24);
-            let c2_p3 = order2.slice(24, 39);
-            document.getElementById('out-2').innerText = toStr(c2_p1) + "+" + toStr(c2_p2) + "+" + toStr(c2_p3);
+            let killMsg = killList.length > 0 ? `<br><b style="color:#c0392b;">🚫 已成功過濾不出牌：${killList.map(fmt).join(', ')} (剩餘熱碼已自動填補空缺)</b>` : '';
+            document.getElementById('personality-desc').innerHTML = `<span class="personality-tag" style="background:${colorTag};">⚖️ 當前模式：${gameTitle} ➔ ${playTitle}</span><br>系統已依據特性完成分柱。${killMsg}`;
 
-            let modeTitle = currentMode === '539' ? '🟢 今彩 539' : '🔵 加州天天樂';
-            document.getElementById('personality-desc').innerHTML = `<span class="personality-tag" style="background:#e67e22;">⚖️ 雙組交叉過關模式已啟動 (${modeTitle})</span><br>為了達成「兩組同時過關」或「一組失誤另一組絕殺」的最高勝率，系統已將兩組的第一柱（10支）進行了號碼重疊度分離。`;
+            if (currentPlay === '3star') {
+                // 總長度 10, 14, 15
+                let o1 = getFillArray(filteredOrder1, 39);
+                let c1_p1 = o1.slice(0, 10), c1_p2 = o1.slice(10, 24), c1_p3 = o1.slice(24, 39);
+                document.getElementById('out-1').innerText = toStr(c1_p1) + "+" + toStr(c1_p2) + "+" + toStr(c1_p3);
 
-            let h1 = "";
-            c1_p1.sort((a,b)=>a-b).forEach(n => { h1 += `${fmt(n)} `; });
-            document.getElementById('analysis-text-1').innerHTML = `本柱包含號碼：<b style="color:red;">${h1}</b><br>🎯 <b>核心任務</b>：專攻熱開碼。當開獎結果符合近期的熱門走勢時，由本組負責衝刺三星過關。`;
+                let o2 = getFillArray(filteredOrder2, 39);
+                let c2_p1 = o2.slice(0, 10), c2_p2 = o2.slice(10, 24), c2_p3 = o2.slice(24, 39);
+                document.getElementById('out-2').innerText = toStr(c2_p1) + "+" + toStr(c2_p2) + "+" + toStr(c2_p3);
 
-            let h2 = "";
-            c2_p1.sort((a,b)=>a-b).forEach(n => { h2 += `${fmt(n)} `; });
-            document.getElementById('analysis-text-2').innerHTML = `本柱包含號碼：<b style="color:purple;">${h2}</b><br>🛡️ <b>核心任務</b>：專攻冷碼反彈與中位數防守。當熱門球突然集體休息、盤口大變盤時，由本組負責在冷門盤口中攔截中獎號，確保不開天窗！`;
 
-            document.getElementById('result-section').style.display = 'block';
-            document.getElementById('result-section').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function copyText(id) {
-            const text = document.getElementById(id).innerText;
-            navigator.clipboard.writeText(text).then(() => {
-                alert("複製成功！");
-            });
-        }
-    </script>
-</body>
-</html>
