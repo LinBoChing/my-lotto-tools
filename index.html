@@ -25,7 +25,7 @@
 </head>
 <body>
 
-    <h1>📊 39碼全包 雙功能智能立柱系統 (完全修復版)</h1>
+    <h1>📊 39碼全包 雙功能智能立柱系統 (終極修復版)</h1>
     
     <div class="card">
         <h3>1. 請選擇彩種模式：</h3>
@@ -100,16 +100,18 @@
             const matches = text.match(/\d+/g);
             if (!matches || matches.length < 5) { alert("請輸入有效的開獎歷史號碼！"); return; }
 
-            // 讀取刪除號
+            // 1. 讀取刪除號
             const killText = document.getElementById('kill-input').value.trim();
             const killMatches = killText.match(/\d+/g) || [];
             let killList = killMatches.map(x => parseInt(x, 10));
 
+            // 2. 統計歷史開獎次數
             let numCounts = Array(40).fill(0);
             let lastPeriodNums = [];
             for(let i=0; i<Math.min(5, matches.length); i++) { lastPeriodNums.push(parseInt(matches[i], 10)); }
             matches.forEach(m => { let val = parseInt(m, 10); if (val >= 1 && val <= 39) numCounts[val]++; });
 
+            // 3. 計算冷熱個性評分
             let scores1 = Array(40).fill(0), scores2 = Array(40).fill(0);
             for(let i=1; i<=39; i++) {
                 let baseCount = numCounts[i];
@@ -130,51 +132,54 @@
                 }
             }
 
-            let arr1 = [], arr2 = [];
+            // 4. 過濾掉不出牌，並依據分數排序
+            let list1 = [], list2 = [];
             for(let i=1; i<=39; i++) {
-                let s1 = killList.includes(i) ? -9999 : scores1[i];
-                let s2 = killList.includes(i) ? -9999 : scores2[i];
-                arr1.push({num: i, score: s1}); 
-                arr2.push({num: i, score: s2}); 
+                if (!killList.includes(i)) {
+                    list1.push({num: i, score: scores1[i]});
+                    list2.push({num: i, score: scores2[i]});
+                }
             }
-            arr1.sort((a,b) => b.score - a.score); 
-            arr2.sort((a,b) => b.score - a.score);
-            
-            let filteredOrder1 = arr1.map(x => x.num).filter(n => !killList.includes(n));
-            let filteredOrder2 = arr2.map(x => x.num).filter(n => !killList.includes(n));
+            list1.sort((a,b) => b.score - a.score);
+            list2.sort((a,b) => b.score - a.score);
 
-            const getFillArray = (order, targetSize) => {
-                let res = [];
-                if (order.length === 0) {
-                    for(let i=1; i<=39; i++) { if(!killList.includes(i)) order.push(i); }
-                }
-                for(let i=0; i<targetSize; i++) {
-                    res.push(order[i % order.length]);
-                }
-                return res;
-            };
+            let sorted1 = list1.map(x => x.num);
+            let sorted2 = list2.map(x => x.num);
 
+            // 5. 格式化輸出輔助
             const fmt = (n) => String(n).padStart(2, '0');
-            const toStr = (arr) => {
-                let unique = [...new Set(arr)];
-                return unique.sort((a,b)=>a-b).map(fmt).join(',');
-            };
+            const formatColumn = (arr) => arr.sort((a,b)=>a-b).map(fmt).join(',');
 
+            // 6. 分柱核心邏輯：依照剩餘可用的號碼，精準切塊填滿限制
+            let outStr1 = "", outStr2 = "";
             let gameTitle = currentGame === '539' ? '今彩 539' : '加州天天樂';
             let playTitle = currentPlay === '3star' ? '三星過關 (10-14-15)' : '四星過關 (9-10-10-10)';
             let colorTag = currentGame === '539' ? '#27ae60' : '#2980b9';
 
-            let killMsg = killList.length > 0 ? `<br><b style="color:#c0392b;">🚫 已成功過濾不出牌：${killList.map(fmt).join(', ')} (剩餘熱碼已自動填補空缺)</b>` : '';
-            document.getElementById('personality-desc').innerHTML = `<span class="personality-tag" style="background:${colorTag};">⚖️ 當前模式：${gameTitle} ➔ ${playTitle}</span><br>系統已依據特性完成分柱。${killMsg}`;
-
             if (currentPlay === '3star') {
-                let o1 = getFillArray(filteredOrder1, 39);
-                let c1_p1 = o1.slice(0, 10), c1_p2 = o1.slice(10, 24), c1_p3 = o1.slice(24, 39);
-                document.getElementById('out-1').innerText = toStr(c1_p1) + "+" + toStr(c1_p2) + "+" + toStr(c1_p3);
+                // 三星分配：10支, 14支, 15支
+                let c1_p1 = sorted1.slice(0, 10);
+                let c1_p2 = sorted1.slice(10, 24);
+                let c1_p3 = sorted1.slice(24);
+                outStr1 = formatColumn(c1_p1) + "+" + formatColumn(c1_p2) + "+" + formatColumn(c1_p3);
 
-                let o2 = getFillArray(filteredOrder2, 39);
-                let c2_p1 = o2.slice(0, 10), c2_p2 = o2.slice(10, 24), c2_p3 = o2.slice(24, 39);
-                document.getElementById('out-2').innerText = toStr(c2_p1) + "+" + toStr(c2_p2) + "+" + toStr(c2_p3);
+                let c2_p1 = sorted2.slice(0, 10);
+                let c2_p2 = sorted2.slice(10, 24);
+                let c2_p3 = sorted2.slice(24);
+                outStr2 = formatColumn(c2_p1) + "+" + formatColumn(c2_p2) + "+" + formatColumn(c2_p3);
 
-                let h1 = ""; [...new Set(c1_p1)].sort((a,b)=>a-b).forEach(n => { h1 += `${fmt(n)} `; });
+                document.getElementById('analysis-text-1').innerHTML = `本柱包含：<b style="color:red;">${formatColumn(c1_p1).replace(/,/g, ' ')}</b><br>🎯 專攻排除後的頂級熱碼，強力防守三星生死門。`;
+                document.getElementById('analysis-text-2').innerHTML = `本柱包含：<b style="color:purple;">${formatColumn(c2_p1).replace(/,/g, ' ')}</b><br>🛡️ 專攻排除後的次熱及冷號反彈，防範盤口突然熄火大轉變。`;
+            } else {
+                // 四星分配：9支, 10支, 10支, 10支 (若因排除導致不夠39顆，slice會自動處理剩餘元素，安全不卡死)
+                let c1_p1 = sorted1.slice(0, 9);
+                let c1_p2 = sorted1.slice(9, 19);
+                let c1_p3 = sorted1.slice(19, 29);
+                let c1_p4 = sorted1.slice(29);
+                outStr1 = formatColumn(c1_p1) + "+" + formatColumn(c1_p2) + "+" + formatColumn(c1_p3) + "+" + formatColumn(c1_p4);
+
+                let c2_p1 = sorted2.slice(0, 9);
+                let c2_p2 = sorted2.slice(9, 19);
+                let c2_p3 = sorted2.slice(19, 29);
+                let c2_p4 = sorted2.slice(29);
 
