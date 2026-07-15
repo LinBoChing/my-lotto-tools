@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>539 / 天天樂 個性化智能立柱系統</title>
+    <title>539 / 天天樂 雙組過關智能立柱系統</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f4f6f9; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }
         h1 { text-align: center; color: #2c3e50; }
@@ -24,44 +24,44 @@
 </head>
 <body>
 
-    <h1>📊 39碼全包個性化智能立柱系統 (10-14-15)</h1>
+    <h1>📊 39碼全包 雙組過關智能立柱系統 (10-14-15)</h1>
     
     <div class="card">
         <h3>1. 請選擇您今天要投注的彩種：</h3>
         <div class="mode-select">
-            <button id="m-539" class="mode-btn active-539" onclick="setMode('539')">今彩 539 模式 (主攻均勻分流、冷熱平衡)</button>
-            <button id="m-ttw" class="mode-btn" onclick="setMode('ttw')">加州天天樂 模式 (主攻瘋狂連莊、大號強攻)</button>
+            <button id="m-539" class="mode-btn active-539" onclick="setMode('539')">今彩 539 模式 (主攻冷熱平衡)</button>
+            <button id="m-ttw" class="mode-btn" onclick="setMode('ttw')">加州天天樂 模式 (主攻連莊大號)</button>
         </div>
 
-        <h3>2. 請貼上最新的歷史開獎號碼 (空白或逗號區隔均可)：</h3>
-        <textarea id="history-input" placeholder="進來就是空白的，請直接貼上號碼..."></textarea>
+        <h3>2. 請貼上歷史開獎號碼 (最新一期放最上面第一行)：</h3>
+        <textarea id="history-input" placeholder="直接貼上號碼即可，支援空白或逗號區隔..."></textarea>
         
-        <button class="gen-btn" onclick="processData()">⚡ 依照彩種個性生成最佳化立柱</button>
+        <button class="gen-btn" onclick="processData()">⚡ 生成兩組「雙保險交叉掩護」過關立柱</button>
     </div>
 
     <div class="card" id="result-section" style="display:none;">
-        <h3>🔮 個性化立柱生成結果</h3>
-        <div id="personality-desc"></div>
+        <h3>🔮 雙保險立柱生成結果 (10支 + 14支 + 15支)</h3>
+        <div id="personality-desc" style="margin-bottom: 15px;"></div>
         
         <!-- 第一組 -->
         <div class="result-box">
-            <h4>第一組：核心主力牌 (最契合該彩種個性的神祕配比)</h4>
+            <h4>第一組：常態熱盤強攻型 (專抓熱門碼與近期慣性)</h4>
             <div class="code-output" id="out-1"></div>
             <button class="copy-btn" onclick="copyText('out-1')">複製</button>
         </div>
         <div class="analysis-box">
-            <strong>📋 第一組 第 1 柱 (10支) 挑選內幕：</strong>
+            <strong>📋 第一組 第 1 柱 (10支) 戰術定位：</strong>
             <div id="analysis-text-1" style="margin-top:8px;"></div>
         </div>
 
         <!-- 第二組 -->
-        <div class="result-box" style="border-left-color: #9b59b6; margin-top:25px;">
-            <h4>第二組：戰術防守牌 (針對極端變盤的保險配置)</h4>
+        <div class="result-box" style="border-left-color: #9b59b6; margin-top:30px;">
+            <h4>第二組：逆向防守變盤型 (專防冷熱交替與偏門盤)</h4>
             <div class="code-output" id="out-2"></div>
             <button class="copy-btn" onclick="copyText('out-2')">複製</button>
         </div>
         <div class="analysis-box" style="border-left-color: #9b59b6;">
-            <strong>📋 第二組 第 1 柱 (10支) 挑選內幕：</strong>
+            <strong>📋 第二組 第 1 柱 (10支) 戰術定位：</strong>
             <div id="analysis-text-2" style="margin-top:8px;"></div>
         </div>
     </div>
@@ -73,7 +73,6 @@
             currentMode = mode;
             const btn539 = document.getElementById('m-539');
             const btnTtw = document.getElementById('m-ttw');
-            
             if(mode === '539') {
                 btn539.className = "mode-btn active-539";
                 btnTtw.className = "mode-btn";
@@ -92,16 +91,106 @@
                 return;
             }
 
-            // 1. 建立統計數據
             let numCounts = Array(40).fill(0);
-            let lastPeriodNums = []; // 存最新一期的號碼
+            let lastPeriodNums = [];
             
-            // 取出最新一期的5個號碼 (前5個數字)
             for(let i=0; i<Math.min(5, matches.length); i++) {
                 lastPeriodNums.push(parseInt(matches[i], 10));
             }
 
             matches.forEach(m => {
+                let val = parseInt(m, 10);
+                if (val >= 1 && val <= 39) numCounts[val]++;
+            });
+
+            // 建立基礎排序
+            let sortedArr = [];
+            for(let i=1; i<=39; i++) { sortedArr.push({num: i, count: numCounts[i]}); }
+            
+            // 第一組的權重分數
+            let scores1 = Array(40).fill(0);
+            // 第二組的權重分數 (逆向思維)
+            let scores2 = Array(40).fill(0);
+
+            for(let i=1; i<=39; i++) {
+                let baseCount = numCounts[i];
+                
+                // --- 第一組：熱盤邏輯 ---
+                scores1[i] = baseCount * 10;
+                if (currentMode === 'ttw') {
+                    if (lastPeriodNums.includes(i)) scores1[i] += 25; // 天天樂極度看重連莊
+                    if (i >= 20) scores1[i] += 8;
+                } else {
+                    if (lastPeriodNums.includes(i)) scores1[i] -= 15; // 539防連莊
+                }
+
+                // --- 第二組：逆向防守與冷熱交替邏輯 ---
+                // 第二組故意讓開出次數中等或偏低的號碼獲得較高基礎分（防冷號大反彈）
+                scores2[i] = (30 - baseCount) * 10; 
+                if (currentMode === 'ttw') {
+                    // 天天樂第二組防守：如果昨天的號碼今天沒連莊，通常會掉進20-30號的中位數球
+                    if (i >= 15 && i <= 30) scores2[i] += 15;
+                } else {
+                    // 539第二組防守：專抓大冷門反彈，特別加分給上期沒開且已經很久沒開的號碼
+                    if (!lastPeriodNums.includes(i) && baseCount === 0) scores2[i] += 30;
+                }
+            }
+
+            // 排序第一組
+            let arr1 = [];
+            for(let i=1; i<=39; i++) { arr1.push({num: i, score: scores1[i]}); }
+            arr1.sort((a,b) => b.score - a.score);
+            let order1 = arr1.map(x => x.num);
+
+            // 排序第二組
+            let arr2 = [];
+            for(let i=1; i<=39; i++) { arr2.push({num: i, score: scores2[i]}); }
+            arr2.sort((a,b) => b.score - a.score);
+            let order2 = arr2.map(x => x.num);
+
+            const fmt = (n) => String(n).padStart(2, '0');
+            const toStr = (arr) => arr.sort((a,b)=>a-b).map(fmt).join(',');
+
+            // 切割立柱
+            let c1_p1 = order1.slice(0, 10);
+            let c1_p2 = order1.slice(10, 24);
+            let c1_p3 = order1.slice(24, 39);
+            document.getElementById('out-1').innerText = toStr(c1_p1) + "+" + toStr(c1_p2) + "+" + toStr(c1_p3);
+
+            let c2_p1 = order2.slice(0, 10);
+            let c2_p2 = order2.slice(10, 24);
+            let c2_p3 = order2.slice(24, 39);
+            document.getElementById('out-2').innerText = toStr(c2_p1) + "+" + toStr(c2_p2) + "+" + toStr(c2_p3);
+
+            // 渲染說明文字
+            let modeTitle = currentMode === '539' ? '🟢 今彩 539' : '🔵 加州天天樂';
+            document.getElementById('personality-desc').innerHTML = `<span class="personality-tag" style="background:#e67e22;">⚖️ 雙組交叉過關模式已啟動 (${modeTitle})</span><br>為了達成「兩組同時過關」或「一組失誤另一組絕殺」的最高勝率，系統已將兩組的第一柱（10支）進行了號碼重疊度分離。`;
+
+            let h1 = "";
+            c1_p1.sort((a,b)=>a-b).forEach(n => {
+                h1 += `${fmt(n)} `;
+            });
+            document.getElementById('analysis-text-1').innerHTML = `本柱包含號碼：<b style="color:red;">${h1}</b><br>🎯 <b>核心任務</b>：專攻熱開碼。當開獎結果符合近期的熱門走勢時，由本組負責衝刺三星過關。`;
+
+            let h2 = "";
+            c2_p1.sort((a,b)=>a-b).forEach(n => {
+                h2 += `${fmt(n)} `;
+            });
+            document.getElementById('analysis-text-2').innerHTML = `本柱包含號碼：<b style="color:purple;">${h2}</b><br>🛡️ <b>核心任務</b>：專攻冷碼反彈與中位數防守。當熱門球突然集體休息、盤口大變盤時，由本組負責在冷門盤口中攔截中獎號，確保不開天窗！`;
+
+            document.getElementById('result-section').style.display = 'block';
+            document.getElementById('result-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function copyText(id) {
+            const text = document.getElementById(id).innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                alert("複製成功！");
+            });
+        }
+    </script>
+</body>
+</html>
                 let val = parseInt(m, 10);
                 if (val >= 1 && val <= 39) numCounts[val]++;
             });
