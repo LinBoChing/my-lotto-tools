@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>539 / 天天樂 智能立柱系統 (含自選不出)</title>
+    <title>539 / 天天樂 智慧立柱系統</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f4f6f9; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }
         h1 { text-align: center; color: #2c3e50; }
@@ -25,7 +25,7 @@
 </head>
 <body>
 
-    <h1>📊 39碼全包 雙功能智能立柱系統 (自選不出牌升級版)</h1>
+    <h1>📊 39碼全包 雙功能智能立柱系統 (完全修復版)</h1>
     
     <div class="card">
         <h3>1. 請選擇彩種模式：</h3>
@@ -130,10 +130,8 @@
                 }
             }
 
-            // 建立排除後的排序清單
             let arr1 = [], arr2 = [];
             for(let i=1; i<=39; i++) {
-                // 如果是排除號，直接給極低分，逼退到最後面
                 let s1 = killList.includes(i) ? -9999 : scores1[i];
                 let s2 = killList.includes(i) ? -9999 : scores2[i];
                 arr1.push({num: i, score: s1}); 
@@ -142,15 +140,15 @@
             arr1.sort((a,b) => b.score - a.score); 
             arr2.sort((a,b) => b.score - a.score);
             
-            // 抓出未被排除的號碼清單
             let filteredOrder1 = arr1.map(x => x.num).filter(n => !killList.includes(n));
             let filteredOrder2 = arr2.map(x => x.num).filter(n => !killList.includes(n));
 
-            // 自動遞補機制：如果號碼不夠填滿柱子，就用最強的熱碼重複使用(複式加強防守)
             const getFillArray = (order, targetSize) => {
                 let res = [];
+                if (order.length === 0) {
+                    for(let i=1; i<=39; i++) { if(!killList.includes(i)) order.push(i); }
+                }
                 for(let i=0; i<targetSize; i++) {
-                    // 如果剩餘球數不夠，就從頭循環使用未被排除的最強熱碼
                     res.push(order[i % order.length]);
                 }
                 return res;
@@ -158,7 +156,6 @@
 
             const fmt = (n) => String(n).padStart(2, '0');
             const toStr = (arr) => {
-                // 為了防止代碼端重複顯示同號，輸出前做一個去重處理(單純防呆)
                 let unique = [...new Set(arr)];
                 return unique.sort((a,b)=>a-b).map(fmt).join(',');
             };
@@ -171,7 +168,6 @@
             document.getElementById('personality-desc').innerHTML = `<span class="personality-tag" style="background:${colorTag};">⚖️ 當前模式：${gameTitle} ➔ ${playTitle}</span><br>系統已依據特性完成分柱。${killMsg}`;
 
             if (currentPlay === '3star') {
-                // 總長度 10, 14, 15
                 let o1 = getFillArray(filteredOrder1, 39);
                 let c1_p1 = o1.slice(0, 10), c1_p2 = o1.slice(10, 24), c1_p3 = o1.slice(24, 39);
                 document.getElementById('out-1').innerText = toStr(c1_p1) + "+" + toStr(c1_p2) + "+" + toStr(c1_p3);
@@ -180,4 +176,5 @@
                 let c2_p1 = o2.slice(0, 10), c2_p2 = o2.slice(10, 24), c2_p3 = o2.slice(24, 39);
                 document.getElementById('out-2').innerText = toStr(c2_p1) + "+" + toStr(c2_p2) + "+" + toStr(c2_p3);
 
+                let h1 = ""; [...new Set(c1_p1)].sort((a,b)=>a-b).forEach(n => { h1 += `${fmt(n)} `; });
 
