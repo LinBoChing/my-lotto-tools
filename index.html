@@ -3,105 +3,202 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>539 & 天天樂 智能立柱產生器</title>
+    <title>539 / 天天樂 個性化智能立柱系統</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f4f6f9; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }
         h1 { text-align: center; color: #2c3e50; }
         .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .btn-group { display: flex; gap: 10px; margin-bottom: 20px; }
-        button { flex: 1; padding: 12px; font-size: 16px; background-color: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.2s; }
-        button:hover { background-color: #2980b9; }
-        button.active { background-color: #27ae60; }
-        textarea { width: 100%; height: 100px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 5px; padding: 10px; font-family: monospace; }
-        .result-box { background: #eef7f2; border-left: 5px solid #27ae60; padding: 15px; margin-top: 15px; position: relative; }
-        .code-output { font-family: monospace; font-size: 15px; background: #2c3e50; color: #2ecc71; padding: 12px; border-radius: 5px; overflow-x: auto; word-break: break-all; margin: 10px 0; }
-        .copy-btn { background: #7f8c8d; color: white; padding: 5px 10px; font-size: 12px; border-radius: 3px; position: absolute; right: 10px; top: 10px; width: auto; cursor: pointer; }
+        .mode-select { display: flex; gap: 15px; margin-bottom: 15px; }
+        .mode-btn { flex: 1; padding: 12px; font-size: 16px; border: 2px solid #ccc; border-radius: 5px; cursor: pointer; font-weight: bold; background: #fff; transition: 0.2s; }
+        .mode-btn.active-539 { background-color: #27ae60; color: white; border-color: #27ae60; }
+        .mode-btn.active-ttw { background-color: #2980b9; color: white; border-color: #2980b9; }
+        textarea { width: 100%; height: 120px; box-sizing: border-box; border: 2px dashed #bdc3c7; border-radius: 5px; padding: 10px; font-family: monospace; font-size: 16px; background: #fafafa; }
+        button.gen-btn { width: 100%; padding: 14px; font-size: 16px; background-color: #e67e22; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 15px; }
+        button.gen-btn:hover { background-color: #d35400; }
+        .result-box { background: #eef7f2; border-left: 5px solid #27ae60; padding: 15px; margin-top: 15px; position: relative; border-radius: 0 5px 5px 0; }
+        .code-output { font-family: monospace; font-size: 16px; background: #2c3e50; color: #2ecc71; padding: 12px; border-radius: 5px; overflow-x: auto; word-break: break-all; margin: 10px 0; font-weight: bold; letter-spacing: 1px; }
+        .copy-btn { background: #7f8c8d; color: white; padding: 6px 12px; font-size: 12px; border-radius: 3px; position: absolute; right: 10px; top: 10px; width: auto; cursor: pointer; }
+        .analysis-box { background: #fdfaf2; border-left: 5px solid #f1c40f; padding: 15px; margin-top: 10px; font-size: 14px; line-height: 1.6; border-radius: 0 5px 5px 0; }
+        .personality-tag { display: inline-block; padding: 3px 8px; border-radius: 3px; font-size: 12px; font-weight: bold; color: white; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
-    <h1>📊 39碼全包智能立柱系統 (10-14-15)</h1>
+    <h1>📊 39碼全包個性化智能立柱系統 (10-14-15)</h1>
     
     <div class="card">
-        <h3>1. 選擇彩種模式</h3>
-        <div class="btn-group">
-            <button id="btn-539" class="active" onclick="switchGame('539')">今彩 539</button>
-            <button id="btn-ttw" onclick="switchGame('ttw')">加州天天樂</button>
+        <h3>1. 請選擇您今天要投注的彩種：</h3>
+        <div class="mode-select">
+            <button id="m-539" class="mode-btn active-539" onclick="setMode('539')">今彩 539 模式 (主攻均勻分流、冷熱平衡)</button>
+            <button id="m-ttw" class="mode-btn" onclick="setMode('ttw')">加州天天樂 模式 (主攻瘋狂連莊、大號強攻)</button>
         </div>
+
+        <h3>2. 請貼上最新的歷史開獎號碼 (空白或逗號區隔均可)：</h3>
+        <textarea id="history-input" placeholder="進來就是空白的，請直接貼上號碼..."></textarea>
         
-        <h3>2. 模擬/載入近 20 期開獎歷史數據 (每行5個號碼，空格或逗號隔開)</h3>
-        <p style="font-size:12px; color:#7f8c8d;">* 網頁已預載一組近期開獎範例，您可以自由貼上最新開獎號碼進行計算。</p>
-        <textarea id="history-input"></textarea>
-        
-        <button style="margin-top: 15px; background-color: #e67e22;" onclick="generateColumns()">⚡ 依大數據分析生成兩組立柱</button>
+        <button class="gen-btn" onclick="processData()">⚡ 依照彩種個性生成最佳化立柱</button>
     </div>
 
     <div class="card" id="result-section" style="display:none;">
-        <h3>🔮 智能立柱結果 (10支 + 14支 + 15支)</h3>
+        <h3>🔮 個性化立柱生成結果</h3>
+        <div id="personality-desc"></div>
         
+        <!-- 第一組 -->
         <div class="result-box">
-            <h4>第一組：焦點防守型 (熱碼、連莊尾強攻第一柱)</h4>
+            <h4>第一組：核心主力牌 (最契合該彩種個性的神祕配比)</h4>
             <div class="code-output" id="out-1"></div>
             <button class="copy-btn" onclick="copyText('out-1')">複製</button>
         </div>
+        <div class="analysis-box">
+            <strong>📋 第一組 第 1 柱 (10支) 挑選內幕：</strong>
+            <div id="analysis-text-1" style="margin-top:8px;"></div>
+        </div>
 
-        <div class="result-box" style="border-left-color: #9b59b6;">
-            <h4>第二組：尾數交叉平衡型 (尾數區塊強迫分流)</h4>
+        <!-- 第二組 -->
+        <div class="result-box" style="border-left-color: #9b59b6; margin-top:25px;">
+            <h4>第二組：戰術防守牌 (針對極端變盤的保險配置)</h4>
             <div class="code-output" id="out-2"></div>
             <button class="copy-btn" onclick="copyText('out-2')">複製</button>
+        </div>
+        <div class="analysis-box" style="border-left-color: #9b59b6;">
+            <strong>📋 第二組 第 1 柱 (10支) 挑選內幕：</strong>
+            <div id="analysis-text-2" style="margin-top:8px;"></div>
         </div>
     </div>
 
     <script>
-        // 預載的範例歷史數據
-        const demo539 = "06,16,19,21,30\n01,06,13,15,37\n03,04,05,34,35\n10,11,18,22,31\n01,11,14,26,38\n06,17,21,25,36\n01,02,15,22,23\n07,09,14,24,39\n04,11,13,22,33\n02,06,12,28,32\n08,18,24,28,34\n01,05,09,15,30\n03,13,23,33,39\n07,17,27,37,38\n11,16,21,26,31\n12,14,16,18,20\n02,04,06,08,10\n05,15,25,35,39\n01,03,05,07,09\n10,20,30,31,32";
-        const demoTtw = "12,23,26,29,38\n04,15,16,22,34\n01,09,13,26,37\n02,12,22,32,39\n11,17,21,28,35\n06,08,19,24,25\n03,13,23,33,36\n05,14,18,29,31\n07,10,20,30,32\n08,11,21,22,23\n15,16,17,26,39\n02,12,24,25,34\n01,03,14,28,38\n09,19,29,31,37\n04,06,18,22,27\n05,13,25,35,36\n10,11,12,13,14\n20,21,22,23,24\n30,31,32,33,35\n01,02,03,04,05";
+        let currentMode = '539';
 
-        let currentImg = '539';
-        document.getElementById('history-input').value = demo539;
-
-        function switchGame(game) {
-            currentImg = game;
-            document.getElementById('btn-539').classList.toggle('active', game === '539');
-            document.getElementById('btn-ttw').classList.toggle('active', game === 'ttw');
-            document.getElementById('history-input').value = game === '539' ? demo539 : demoTtw;
+        function setMode(mode) {
+            currentMode = mode;
+            const btn539 = document.getElementById('m-539');
+            const btnTtw = document.getElementById('m-ttw');
+            
+            if(mode === '539') {
+                btn539.className = "mode-btn active-539";
+                btnTtw.className = "mode-btn";
+            } else {
+                btn539.className = "mode-btn";
+                btnTtw.className = "mode-btn active-ttw";
+            }
         }
 
-        function generateColumns() {
-            const text = document.getElementById('history-input').value;
-            // 抓出所有數字
+        function processData() {
+            const text = document.getElementById('history-input').value.trim();
             const matches = text.match(/\d+/g);
-            if (!matches || matches.length < 10) {
+            
+            if (!matches || matches.length < 5) {
                 alert("請輸入有效的開獎歷史號碼！");
                 return;
             }
 
-            // 1. 統計號碼與尾數出現頻率
+            // 1. 建立統計數據
             let numCounts = Array(40).fill(0);
-            let tailCounts = Array(10).fill(0);
+            let lastPeriodNums = []; // 存最新一期的號碼
             
+            // 取出最新一期的5個號碼 (前5個數字)
+            for(let i=0; i<Math.min(5, matches.length); i++) {
+                lastPeriodNums.push(parseInt(matches[i], 10));
+            }
+
             matches.forEach(m => {
                 let val = parseInt(m, 10);
-                if (val >= 1 && val <= 39) {
-                    numCounts[val]++;
-                    tailCounts[val % 10]++;
-                }
+                if (val >= 1 && val <= 39) numCounts[val]++;
             });
 
-            // 排序出熱門到冷門的號碼
-            let sortedNums = [];
-            for(let i=1; i<=39; i++) { sortedNums.push({num: i, count: numCounts[i]}); }
-            sortedNums.sort((a,b) => b.count - a.count);
-            let hotOrder = sortedNums.map(x => x.num); // 熱門號到冷門號清單
+            // 基本冷熱排序
+            let sortedArr = [];
+            for(let i=1; i<=39; i++) { sortedArr.push({num: i, count: numCounts[i]}); }
+            sortedArr.sort((a,b) => b.count - a.count);
+            let baseHotOrder = sortedArr.map(x => x.num);
 
-            // 格式化輔助器
+            // 2. 依據「彩種個性」賦予不同的權重得分
+            let finalScores = Array(40).fill(0);
+            for(let i=1; i<=39; i++) {
+                let score = numCounts[i] * 10; // 基礎分：次數越多分越高
+                
+                if (currentMode === '539') {
+                    // 【539 個性】：注重平衡，上一期開過的號碼今天容易休息（扣分），主攻均勻分流
+                    if (lastPeriodNums.includes(i)) {
+                        score -= 15; // 上期開過，扣分防連莊
+                    }
+                    // 加分項目：單雙中庸號碼
+                    if (i % 2 === 0) score += 1; 
+                } else {
+                    // 【天天樂 個性】：注重強者恆強，昨天的號碼今天極度容易連莊（大加分）
+                    if (lastPeriodNums.includes(i)) {
+                        score += 25; // 昨天剛開，強力加分！
+                    }
+                    // 加分項目：天天樂偏愛20號以上的大號
+                    if (i >= 20) {
+                        score += 8; // 大號權重加成
+                    }
+                }
+                finalScores[i] = score;
+            }
+
+            // 依照個性分數重新排定黃金順位
+            let customOrder = [];
+            for(let i=1; i<=39; i++) { customOrder.push({num: i, score: finalScores[i]}); }
+            customOrder.sort((a,b) => b.score - a.score);
+            let finalHotOrder = customOrder.map(x => x.num);
+
+            // 格式化輸出
             const fmt = (n) => String(n).padStart(2, '0');
             const toStr = (arr) => arr.sort((a,b)=>a-b).map(fmt).join(',');
 
-            // --------------------
-            // 🌟 策略第一組：焦點防守型
-            // --------------------
-            let c1_p1 = hotOrder.slice(0, 10);  // 10支：最熱門
+            // 3. 切割成 10 - 14 - 15 立柱
+            // 第一組：黃金主力
+            let c1_p1 = finalHotOrder.slice(0, 10);
+            let c1_p2 = finalHotOrder.slice(10, 24);
+            let c1_p3 = finalHotOrder.slice(24, 39);
+            document.getElementById('out-1').innerText = toStr(c1_p1) + "+" + toStr(c1_p2) + "+" + toStr(c1_p3);
+
+            // 第二組：錯位變盤防守
+            let c2_p1 = finalHotOrder.slice(5, 15);
+            let c2_p2 = finalHotOrder.slice(0, 5).concat(finalHotOrder.slice(15, 24));
+            let c2_p3 = finalHotOrder.slice(24, 39);
+            document.getElementById('out-2').innerText = toStr(c2_p1) + "+" + toStr(c2_p2) + "+" + toStr(c2_p3);
+
+            // 4. 動態網頁文字渲染
+            if(currentMode === '539') {
+                document.getElementById('personality-desc').innerHTML = `<span class="personality-tag" style="background:#27ae60;">🟢 當前啟用：今彩 539 演算法</span><br><b>核心戰略：</b>系統已自動過濾並壓低「上一期開出號碼」的權重，避免 539 實體搖珠機的冷熱平衡陷阱，挑選出具備高反彈爆發力的冷熱均值號。`;
+                
+                let h1 = "";
+                c1_p1.sort((a,b)=>a-b).forEach(n => {
+                    let isLast = lastPeriodNums.includes(n) ? "<font color='orange'>(上期連莊防守)</font>" : "<font color='green'>(完美冷熱回溫碼)</font>";
+                    h1 += `• <b>號碼 ${fmt(n)}</b>：${isLast}，在回歸均值演算法中得分極高，契合539分流慣性。<br>`;
+                });
+                document.getElementById('analysis-text-1').innerHTML = h1;
+                
+                let h2 = "";
+                c2_p1.sort((a,b)=>a-b).forEach(n => {
+                    h2 += `• <b>號碼 ${fmt(n)}</b>：屬於中段班穩定均值球，用於防範539突然開出極端歷史大冷號。<br>`;
+                });
+                document.getElementById('analysis-text-2').innerHTML = h2;
+            } else {
+                document.getElementById('personality-desc').innerHTML = `<span class="personality-tag" style="background:#2980b9;">🔵 當前啟用：加州天天樂 演算法</span><br><b>核心戰略：</b>系統已自動「大幅追加」昨天開出號碼的權重（天天樂特有高連莊率），並對 20 號以上的大號進行大數據加權，強攻天天樂的群聚特性。`;
+                
+                let h1 = "";
+                c1_p1.sort((a,b)=>a-b).forEach(n => {
+                    let isLast = lastPeriodNums.includes(n) ? "<font color='red'><b>(昨日連莊強勢留用)</b></font>" : "";
+                    let isBig = n >= 20 ? "<font color='blue'>(20+強勢大號)</font>" : "";
+                    h1 += `• <b>號碼 ${fmt(n)}</b>：${isLast} ${isBig} 具備天天樂短期拖牌最高綜合指標，強鎖第一柱防開天窗。<br>`;
+                });
+                document.getElementById('analysis-text-1').innerHTML = h1;
+
+                let h2 = "";
+                c2_p1.sort((a,b)=>a-b).forEach(n => {
+                    h2 += `• <b>號碼 ${fmt(n)}</b>：避開最瘋狂號碼，鎖定第二梯隊的熱碼，預防天天樂今晚意外大變盤轉冷。<br>`;
+                });
+                document.getElementById('analysis-text-2').innerHTML = h2;
+            }
+
+            document.getElementById('result-section').style.display = 'block';
+            document.getElementById('result-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function copyText(id) {
             let c1_p2 = hotOrder.slice(10, 24); // 14支：次熱門
             let c1_p3 = hotOrder.slice(24, 39); // 15支：冷門防守
 
