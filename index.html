@@ -9,7 +9,7 @@
         h1 { text-align: center; color: #2c3e50; }
         .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .mode-select { display: flex; gap: 10px; margin-bottom: 15px; }
-        .mode-btn { flex: 1; padding: 12px; font-size: 15px; border: 2px solid #ccc; border-radius: 5px; cursor: pointer; font-weight: bold; background: #fff; transition: 0.2s; }
+        .mode-btn { flex: 1; padding: 12px; font-size: 15px; border: 2px solid #ccc; border-radius: 5px; cursor: pointer; font-weight: bold; background: #fff; transition: 0.2s; -webkit-tap-highlight-color: transparent; }
         .mode-btn.active-game { background-color: #2980b9; color: white; border-color: #2980b9; }
         .mode-btn.active-play { background-color: #e74c3c; color: white; border-color: #e74c3c; }
         textarea { width: 100%; height: 100px; box-sizing: border-box; border: 2px dashed #bdc3c7; border-radius: 5px; padding: 10px; font-size: 16px; background: #fafafa; }
@@ -25,7 +25,7 @@
 </head>
 <body>
 
-    <h1>📊 39碼全包 雙功能智能立柱系統 (終極修復版)</h1>
+    <h1>📊 39碼全包 雙功能智能立柱系統</h1>
     
     <div class="card">
         <h3>1. 請選擇彩種模式：</h3>
@@ -42,8 +42,8 @@
 
         <div id="kill-section" style="margin-bottom: 20px;">
             <h3 style="color:#c0392b;">🚫 填入自選不出牌 (刪除號)：</h3>
-            <p style="font-size:13px; color:#7f8c8d; margin-top:-10px;">(若無則保持空白，支援空白或逗號隔開。例：04 18 35)</p>
-            <input type="text" id="kill-input" class="kill-input" placeholder="請輸入今晚想刪除的冷碼或冥燈號...">
+            <p style="font-size:13px; color:#7f8c8d; margin-top:-10px;">(若無則保持空白，多個號碼請用空白區隔，例：04 18)</p>
+            <input type="text" id="kill-input" class="kill-input" placeholder="請輸入想排除的號碼...">
         </div>
 
         <h3>3. 請貼上歷史開獎號碼 (最新一期放第一行)：</h3>
@@ -80,39 +80,56 @@
     </div>
 
     <script>
+        // 僅負責單純的按鈕視覺與狀態切換，絕對不執行運算，防範開天窗
         let currentGame = '539';
         let currentPlay = '3star';
 
         function setGame(game) {
             currentGame = game;
-            document.getElementById('g-539').className = game === '539' ? "mode-btn active-game" : "mode-btn";
-            document.getElementById('g-ttw').className = game === 'ttw' ? "mode-btn active-game" : "mode-btn";
+            document.getElementById('g-539').className = (game === '539') ? "mode-btn active-game" : "mode-btn";
+            document.getElementById('g-ttw').className = (game === 'ttw') ? "mode-btn active-game" : "mode-btn";
         }
 
         function setPlay(play) {
             currentPlay = play;
-            document.getElementById('p-3star').className = play === '3star' ? "mode-btn active-play" : "mode-btn";
-            document.getElementById('p-4star').className = play === '4star' ? "mode-btn active-play" : "mode-btn";
+            document.getElementById('p-3star').className = (play === '3star') ? "mode-btn active-play" : "mode-btn";
+            document.getElementById('p-4star').className = (play === '4star') ? "mode-btn active-play" : "mode-btn";
         }
 
         function processData() {
             const text = document.getElementById('history-input').value.trim();
+            if (!text) { alert("請先貼上歷史開獎號碼！"); return; }
+            
             const matches = text.match(/\d+/g);
             if (!matches || matches.length < 5) { alert("請輸入有效的開獎歷史號碼！"); return; }
 
             // 1. 讀取刪除號
             const killText = document.getElementById('kill-input').value.trim();
             const killMatches = killText.match(/\d+/g) || [];
-            let killList = killMatches.map(x => parseInt(x, 10));
+            let killList = [];
+            killMatches.forEach(x => {
+                let v = parseInt(x, 10);
+                if (v >= 1 && v <= 39 && !killList.includes(v)) killList.push(v);
+            });
 
             // 2. 統計歷史開獎次數
-            let numCounts = Array(40).fill(0);
+            let numCounts = [];
+            for(let i=0; i<=40; i++) numCounts.push(0);
+            
             let lastPeriodNums = [];
-            for(let i=0; i<Math.min(5, matches.length); i++) { lastPeriodNums.push(parseInt(matches[i], 10)); }
-            matches.forEach(m => { let val = parseInt(m, 10); if (val >= 1 && val <= 39) numCounts[val]++; });
+            for(let i=0; i<Math.min(5, matches.length); i++) { 
+                lastPeriodNums.push(parseInt(matches[i], 10)); 
+            }
+            
+            matches.forEach(m => { 
+                let val = parseInt(m, 10); 
+                if (val >= 1 && val <= 39) numCounts[val]++; 
+            });
 
-            // 3. 計算冷熱個性評分
-            let scores1 = Array(40).fill(0), scores2 = Array(40).fill(0);
+            // 3. 計算冷熱評分
+            let scores1 = [], scores2 = [];
+            for(let i=0; i<=40; i++) { scores1.push(0); scores2.push(0); }
+            
             for(let i=1; i<=39; i++) {
                 let baseCount = numCounts[i];
                 scores1[i] = baseCount * 10;
@@ -140,24 +157,28 @@
                     list2.push({num: i, score: scores2[i]});
                 }
             }
-            list1.sort((a,b) => b.score - a.score);
-            list2.sort((a,b) => b.score - a.score);
+            list1.sort(function(a,b){ return b.score - a.score; });
+            list2.sort(function(a,b){ return b.score - a.score; });
 
-            let sorted1 = list1.map(x => x.num);
-            let sorted2 = list2.map(x => x.num);
+            let sorted1 = []; list1.forEach(function(x){ sorted1.push(x.num); });
+            let sorted2 = []; list2.forEach(function(x){ sorted2.push(x.num); });
 
-            // 5. 格式化輸出輔助
-            const fmt = (n) => String(n).padStart(2, '0');
-            const formatColumn = (arr) => arr.sort((a,b)=>a-b).map(fmt).join(',');
+            // 如果號碼被刪到不夠分柱，自動補齊剩餘號碼
+            for(let i=1; i<=39; i++) {
+                if(!killList.includes(i) && !sorted1.includes(i)) sorted1.push(i);
+                if(!killList.includes(i) && !sorted2.includes(i)) sorted2.push(i);
+            }
 
-            // 6. 分柱核心邏輯：依照剩餘可用的號碼，精準切塊填滿限制
+            const fmt = function(n) { return String(n).padStart(2, '0'); };
+            const formatColumn = function(arr) {
+                let tmp = []; arr.forEach(function(x){ tmp.push(x); });
+                tmp.sort(function(a,b){return a-b;});
+                let strArr = []; tmp.forEach(function(x){ strArr.push(fmt(x)); });
+                return strArr.join(',');
+            };
+
             let outStr1 = "", outStr2 = "";
-            let gameTitle = currentGame === '539' ? '今彩 539' : '加州天天樂';
-            let playTitle = currentPlay === '3star' ? '三星過關 (10-14-15)' : '四星過關 (9-10-10-10)';
-            let colorTag = currentGame === '539' ? '#27ae60' : '#2980b9';
-
             if (currentPlay === '3star') {
-                // 三星分配：10支, 14支, 15支
                 let c1_p1 = sorted1.slice(0, 10);
                 let c1_p2 = sorted1.slice(10, 24);
                 let c1_p3 = sorted1.slice(24);
@@ -169,17 +190,4 @@
                 outStr2 = formatColumn(c2_p1) + "+" + formatColumn(c2_p2) + "+" + formatColumn(c2_p3);
 
                 document.getElementById('analysis-text-1').innerHTML = `本柱包含：<b style="color:red;">${formatColumn(c1_p1).replace(/,/g, ' ')}</b><br>🎯 專攻排除後的頂級熱碼，強力防守三星生死門。`;
-                document.getElementById('analysis-text-2').innerHTML = `本柱包含：<b style="color:purple;">${formatColumn(c2_p1).replace(/,/g, ' ')}</b><br>🛡️ 專攻排除後的次熱及冷號反彈，防範盤口突然熄火大轉變。`;
-            } else {
-                // 四星分配：9支, 10支, 10支, 10支 (若因排除導致不夠39顆，slice會自動處理剩餘元素，安全不卡死)
-                let c1_p1 = sorted1.slice(0, 9);
-                let c1_p2 = sorted1.slice(9, 19);
-                let c1_p3 = sorted1.slice(19, 29);
-                let c1_p4 = sorted1.slice(29);
-                outStr1 = formatColumn(c1_p1) + "+" + formatColumn(c1_p2) + "+" + formatColumn(c1_p3) + "+" + formatColumn(c1_p4);
-
-                let c2_p1 = sorted2.slice(0, 9);
-                let c2_p2 = sorted2.slice(9, 19);
-                let c2_p3 = sorted2.slice(19, 29);
-                let c2_p4 = sorted2.slice(29);
 
