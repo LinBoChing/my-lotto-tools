@@ -12,7 +12,9 @@
         .mode-btn { flex: 1; padding: 12px; font-size: 16px; border: 2px solid #ccc; border-radius: 5px; cursor: pointer; font-weight: bold; background: #fff; }
         .mode-btn.active-539 { background-color: #27ae60; color: white; border-color: #27ae60; }
         .mode-btn.active-ttw { background-color: #2980b9; color: white; border-color: #2980b9; }
+        .mode-btn.active-play { background-color: #e74c3c; color: white; border-color: #e74c3c; }
         textarea { width: 100%; height: 120px; box-sizing: border-box; border: 2px dashed #bdc3c7; border-radius: 5px; padding: 10px; font-size: 16px; background: #fafafa; }
+        .kill-input { width: 100%; padding: 12px; box-sizing: border-box; border: 2px solid #e74c3c; border-radius: 5px; font-size: 16px; font-weight: bold; color: #c0392b; background: #fdf2f2; margin-top: 5px; }
         button.gen-btn { width: 100%; padding: 14px; font-size: 16px; background-color: #e67e22; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 15px; }
         .result-box { background: #eef7f2; border-left: 5px solid #27ae60; padding: 15px; margin-top: 15px; position: relative; border-radius: 0 5px 5px 0; }
         .code-output { font-family: monospace; font-size: 16px; background: #2c3e50; color: #2ecc71; padding: 12px; border-radius: 5px; overflow-x: auto; word-break: break-all; margin: 10px 0; font-weight: bold; }
@@ -23,7 +25,7 @@
 </head>
 <body>
 
-    <h1>📊 39碼全包 雙組過關智能立柱系統 (10-14-15)</h1>
+    <h1>📊 39碼全包 雙功能智能立柱系統</h1>
     
     <div class="card">
         <h3>1. 請選擇您今天要投注的彩種：</h3>
@@ -32,7 +34,19 @@
             <button id="m-ttw" class="mode-btn" onclick="setMode('ttw')">加州天天樂 模式</button>
         </div>
 
-        <h3>2. 請貼上歷史開獎號碼：</h3>
+        <h3>2. 請選擇立柱玩法：</h3>
+        <div class="mode-select">
+            <button id="p-3star" class="mode-btn active-play" onclick="setPlay('3star')">三星過關 (10 - 14 - 15 立三柱)</button>
+            <button id="p-4star" class="mode-btn" onclick="setPlay('4star')">四星過關 (9 - 10 - 10 - 10 立四柱)</button>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <h3 style="color:#c0392b;">🚫 填入自選不出牌 (刪除號)：</h3>
+            <p style="font-size:13px; color:#7f8c8d; margin-top:-10px;">(若無請保持空白，多個號碼請用空白隔開。例：04 18)</p>
+            <input type="text" id="kill-input" class="kill-input" placeholder="請輸入想排除的號碼...">
+        </div>
+
+        <h3>3. 請貼上歷史開獎號碼：</h3>
         <textarea id="history-input" placeholder="請直接貼上號碼，最新一期放最上面第一行..."></textarea>
         
         <button class="gen-btn" onclick="processData()">⚡ 生成兩組「雙保險交叉掩護」過關立柱</button>
@@ -49,7 +63,7 @@
             <button class="copy-btn" onclick="copyText('out-1')">複製</button>
         </div>
         <div class="analysis-box">
-            <strong>📋 第一組 第 1 柱 (10支) 戰術定位：</strong>
+            <strong>📋 第一組 第 1 柱 戰術定位：</strong>
             <div id="analysis-text-1" style="margin-top:8px;"></div>
         </div>
 
@@ -60,13 +74,14 @@
             <button class="copy-btn" onclick="copyText('out-2')">複製</button>
         </div>
         <div class="analysis-box" style="border-left-color: #9b59b6;">
-            <strong>📋 第二組 第 1 柱 (10支) 戰術定位：</strong>
+            <strong>📋 第二組 第 1 柱 戰術定位：</strong>
             <div id="analysis-text-2" style="margin-top:8px;"></div>
         </div>
     </div>
 
     <script>
         let currentMode = '539';
+        let currentPlay = '3star'; // 新增預設玩法
 
         function setMode(mode) {
             currentMode = mode;
@@ -74,10 +89,26 @@
             document.getElementById('m-ttw').className = mode === 'ttw' ? "mode-btn active-ttw" : "mode-btn";
         }
 
+        // 新增：玩法切換按鈕控制
+        function setPlay(play) {
+            currentPlay = play;
+            document.getElementById('p-3star').className = play === '3star' ? "mode-btn active-play" : "mode-btn";
+            document.getElementById('p-4star').className = play === '4star' ? "mode-btn active-play" : "mode-btn";
+        }
+
         function processData() {
             const text = document.getElementById('history-input').value.trim();
             const matches = text.match(/\d+/g);
             if (!matches || matches.length < 5) { alert("請輸入有效的開獎歷史號碼！"); return; }
+
+            // 新增：讀取自選不出牌
+            const killText = document.getElementById('kill-input').value.trim();
+            const killMatches = killText.match(/\d+/g) || [];
+            let killList = [];
+            killMatches.forEach(x => {
+                let v = parseInt(x, 10);
+                if (v >= 1 && v <= 39 && !killList.includes(v)) killList.push(v);
+            });
 
             let numCounts = Array(40).fill(0);
             let lastPeriodNums = [];
@@ -94,43 +125,65 @@
                 } else {
                     if (lastPeriodNums.includes(i)) scores1[i] -= 15;
                 }
-                scores2[i] = (30 - baseCount) * 10;
-                if (currentMode === 'ttw') { if (i >= 15 && i <= 30) scores2[i] += 15; }
-                else { if (!lastPeriodNums.includes(i) && baseCount === 0) scores2[i] += 30; }
+                
+                // 四星玩法時微調第二組基礎分，避免號碼過度堆疊
+                if (currentPlay === '4star') {
+                    scores2[i] = (25 - baseCount) * 10 + (i % 10);
+                } else {
+                    scores2[i] = (30 - baseCount) * 10;
+                    if (currentMode === 'ttw') { if (i >= 15 && i <= 30) scores2[i] += 15; }
+                    else { if (!lastPeriodNums.includes(i) && baseCount === 0) scores2[i] += 30; }
+                }
             }
 
             let arr1 = [], arr2 = [];
-            for(let i=1; i<=39; i++) { arr1.push({num: i, score: scores1[i]}); arr2.push({num: i, score: scores2[i]}); }
+            // 修改：如果屬於不出牌(killList)，則完全排除不加入計算清單中
+            for(let i=1; i<=39; i++) { 
+                if (!killList.includes(i)) {
+                    arr1.push({num: i, score: scores1[i]}); 
+                    arr2.push({num: i, score: scores2[i]}); 
+                }
+            }
             arr1.sort((a,b) => b.score - a.score); arr2.sort((a,b) => b.score - a.score);
             let order1 = arr1.map(x => x.num), order2 = arr2.map(x => x.num);
+
+            // 防空鎖：將未被排除的剩餘號碼完全補齊
+            for(let i=1; i<=39; i++) {
+                if (!killList.includes(i) && !order1.includes(i)) order1.push(i);
+                if (!killList.includes(i) && !order2.includes(i)) order2.push(i);
+            }
 
             const fmt = (n) => String(n).padStart(2, '0');
             const toStr = (arr) => arr.sort((a,b)=>a-b).map(fmt).join(',');
 
-            let c1_p1 = order1.slice(0, 10), c1_p2 = order1.slice(10, 24), c1_p3 = order1.slice(24, 39);
-            document.getElementById('out-1').innerText = toStr(c1_p1) + "+" + toStr(c1_p2) + "+" + toStr(c1_p3);
+            let outStr1 = "", outStr2 = "";
+            let head1 = "", head2 = "", desc1 = "", desc2 = "";
 
-            let c2_p1 = order2.slice(0, 10), c2_p2 = order2.slice(10, 24), c2_p3 = order2.slice(24, 39);
-            document.getElementById('out-2').innerText = toStr(c2_p1) + "+" + toStr(c2_p2) + "+" + toStr(c2_p3);
+            // 修改：依據目前切換的玩法(三星/四星)，決定切塊輸出格式
+            if (currentPlay === '3star') {
+                let c1_p1 = order1.slice(0, 10), c1_p2 = order1.slice(10, 24), c1_p3 = order1.slice(24);
+                outStr1 = toStr(c1_p1) + "+" + toStr(c1_p2) + "+" + toStr(c1_p3);
 
-            let modeTitle = currentMode === '539' ? '🟢 今彩 539' : '🔵 加州天天樂';
-            document.getElementById('personality-desc').innerHTML = `<span class="personality-tag" style="background:#e67e22;">⚖️ 雙組交叉過關模式已啟動 (${modeTitle})</span><br>系統已將兩組的第一柱進行重疊度分離，達到雙保險效果。`;
+                let c2_p1 = order2.slice(0, 10), c2_p2 = order2.slice(10, 24), c2_p3 = order2.slice(24);
+                outStr2 = toStr(c2_p1) + "+" + toStr(c2_p2) + "+" + toStr(c2_p3);
 
-            let h1 = ""; c1_p1.sort((a,b)=>a-b).forEach(n => { h1 += `${fmt(n)} `; });
-            document.getElementById('analysis-text-1').innerHTML = `本柱包含：<b style="color:red;">${h1}</b><br>🎯 專攻熱開碼，符合近期大數據熱盤走勢時衝刺三星。`;
+                head1 = c1_p1; head2 = c2_p1;
+                desc1 = "🎯 專攻熱開碼，符合近期大數據熱盤走勢時衝刺三星。";
+                desc2 = "🛡️ 專攻冷碼反彈與中位數防守，防範盤口突然大變盤。";
+            } else {
+                // 四星配比：9支, 10支, 10支, 10支
+                let c1_p1 = order1.slice(0, 9), c1_p2 = order1.slice(9, 19), c1_p3 = order1.slice(19, 29), c1_p4 = order1.slice(29);
+                outStr1 = toStr(c1_p1) + "+" + toStr(c1_p2) + "+" + toStr(c1_p3) + "+" + toStr(c1_p4);
 
-            let h2 = ""; c2_p1.sort((a,b)=>a-b).forEach(n => { h2 += `${fmt(n)} `; });
-            document.getElementById('analysis-text-2').innerHTML = `本柱包含：<b style="color:purple;">${h2}</b><br>🛡️ 專攻冷碼反彈與中位數防守，防範盤口突然大變盤。`;
+                let c2_p1 = order2.slice(0, 9), c2_p2 = order2.slice(9, 19), c2_p3 = order2.slice(19, 29), c2_p4 = order2.slice(29);
+                outStr2 = toStr(c2_p1) + "+" + toStr(c2_p2) + "+" + toStr(c2_p3) + "+" + toStr(c2_p4);
 
-            document.getElementById('result-section').style.display = 'block';
-            document.getElementById('result-section').scrollIntoView({ behavior: 'smooth' });
-        }
+                head1 = c1_p1; head2 = c2_p1;
+                desc1 = "🎯 四星立四柱玩法。已完全剔除自選不出牌，第一柱放置精華熱碼，四柱分流衝刺四星全過。";
+                desc2 = "🛡️ 四星防守第一柱。已完全剔除自選不出牌，主攻冷熱交替碼進行防守。";
+            }
 
-        function copyText(id) {
-            const text = document.getElementById(id).innerText;
-            navigator.clipboard.writeText(text).then(() => { alert("複製成功！"); });
-        }
-    </script>
-</body>
-</html>
+            document.getElementById('out-1').innerText = outStr1;
+            document.getElementById('out-2').innerText = outStr2;
+
 
