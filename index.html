@@ -103,6 +103,76 @@
                 if (val >= 1 && val <= 39) numCounts[val]++;
             });
 
+            let scores1 = Array(40).fill(0);
+            let scores2 = Array(40).fill(0);
+
+            for(let i=1; i<=39; i++) {
+                let baseCount = numCounts[i];
+                
+                scores1[i] = baseCount * 10;
+                if (currentMode === 'ttw') {
+                    if (lastPeriodNums.includes(i)) scores1[i] += 25;
+                    if (i >= 20) scores1[i] += 8;
+                } else {
+                    if (lastPeriodNums.includes(i)) scores1[i] -= 15;
+                }
+
+                scores2[i] = (30 - baseCount) * 10; 
+                if (currentMode === 'ttw') {
+                    if (i >= 15 && i <= 30) scores2[i] += 15;
+                } else {
+                    if (!lastPeriodNums.includes(i) && baseCount === 0) scores2[i] += 30;
+                }
+            }
+
+            let arr1 = [];
+            for(let i=1; i<=39; i++) { arr1.push({num: i, score: scores1[i]}); }
+            arr1.sort((a,b) => b.score - a.score);
+            let order1 = arr1.map(x => x.num);
+
+            let arr2 = [];
+            for(let i=1; i<=39; i++) { arr2.push({num: i, score: scores2[i]}); }
+            arr2.sort((a,b) => b.score - a.score);
+            let order2 = arr2.map(x => x.num);
+
+            const fmt = (n) => String(n).padStart(2, '0');
+            const toStr = (arr) => arr.sort((a,b)=>a-b).map(fmt).join(',');
+
+            let c1_p1 = order1.slice(0, 10);
+            let c1_p2 = order1.slice(10, 24);
+            let c1_p3 = order1.slice(24, 39);
+            document.getElementById('out-1').innerText = toStr(c1_p1) + "+" + toStr(c1_p2) + "+" + toStr(c1_p3);
+
+            let c2_p1 = order2.slice(0, 10);
+            let c2_p2 = order2.slice(10, 24);
+            let c2_p3 = order2.slice(24, 39);
+            document.getElementById('out-2').innerText = toStr(c2_p1) + "+" + toStr(c2_p2) + "+" + toStr(c2_p3);
+
+            let modeTitle = currentMode === '539' ? '🟢 今彩 539' : '🔵 加州天天樂';
+            document.getElementById('personality-desc').innerHTML = `<span class="personality-tag" style="background:#e67e22;">⚖️ 雙組交叉過關模式已啟動 (${modeTitle})</span><br>為了達成「兩組同時過關」或「一組失誤另一組絕殺」的最高勝率，系統已將兩組的第一柱（10支）進行了號碼重疊度分離。`;
+
+            let h1 = "";
+            c1_p1.sort((a,b)=>a-b).forEach(n => { h1 += `${fmt(n)} `; });
+            document.getElementById('analysis-text-1').innerHTML = `本柱包含號碼：<b style="color:red;">${h1}</b><br>🎯 <b>核心任務</b>：專攻熱開碼。當開獎結果符合近期的熱門走勢時，由本組負責衝刺三星過關。`;
+
+            let h2 = "";
+            c2_p1.sort((a,b)=>a-b).forEach(n => { h2 += `${fmt(n)} `; });
+            document.getElementById('analysis-text-2').innerHTML = `本柱包含號碼：<b style="color:purple;">${h2}</b><br>🛡️ <b>核心任務</b>：專攻冷碼反彈與中位數防守。當熱門球突然集體休息、盤口大變盤時，由本組負責在冷門盤口中攔截中獎號，確保不開天窗！`;
+
+            document.getElementById('result-section').style.display = 'block';
+            document.getElementById('result-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function copyText(id) {
+            const text = document.getElementById(id).innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                alert("複製成功！");
+            });
+        }
+    </script>
+</body>
+</html>
+
             // 建立基礎排序
             let sortedArr = [];
             for(let i=1; i<=39; i++) { sortedArr.push({num: i, count: numCounts[i]}); }
